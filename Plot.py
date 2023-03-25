@@ -3,9 +3,10 @@ import sys
 import json 
 import cmath
 import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-# matplotlib.use('TkAgg')
+
 from numpy import sin, log, pi, angle, sqrt
 import numpy as np
 import mpmath as mp
@@ -37,8 +38,10 @@ def Wave_Function_Value(input_par, psi, grid, r, theta, phi, m):
     l_max_bs = input_par["l_max_bs"]
     return_val = 0.0j
 
-    for l in range(0, l_max_bs):
+    for l in range(m, l_max_bs):
         psi_idx = grid.size*l + grid_idx
+
+        
         return_val += 1/r*psi[psi_idx]*sph_harm(m, l, phi, theta)
     
     return return_val
@@ -186,6 +189,17 @@ if __name__=="__main__":
     psi = bound_states[(n, m)]
 
     print(energy[(n, m)])
+
+    plt.plot(grid, np.abs(psi[:len(grid)]), label="0")
+    plt.plot(grid, np.abs(psi[len(grid):2*len(grid)]), label="1")
+    plt.plot(grid, np.abs(psi[2*len(grid):3*len(grid)]), label="2")
+    plt.plot(grid, np.abs(psi[3*len(grid):4*len(grid)]), label="3")
+    plt.plot(grid, np.abs(psi[4*len(grid):5*len(grid)]), label="4")
+    plt.xlim(0, 35)
+    plt.legend()
+    plt.show()
+    exit()
+
     PAD_Momentum(input_par, psi, grid, m)
 
     

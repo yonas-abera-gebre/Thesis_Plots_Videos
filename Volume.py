@@ -21,7 +21,7 @@ def PEM_Data_Plotter(data):
         x=X.flatten(),
         y=Y.flatten(),
         z=Z.flatten(),
-        value=PEM_data.flatten(),
+        value=data.flatten(),
         isomin=0.0,
         isomax=1.0,
         opacity=0.1, # needs to be small to see through all surfaces
@@ -31,4 +31,6 @@ def PEM_Data_Plotter(data):
 
 
 if __name__=="__main__":
+    data = np.load("H2_E0_Mag.npy")
+    print(data)
     PEM_Data_Plotter(data)

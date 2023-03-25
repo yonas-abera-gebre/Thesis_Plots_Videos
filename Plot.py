@@ -23,7 +23,10 @@ import PModule as PMod
 import plotly.graph_objects as go
 from math import floor, atan2, acos
 from plotly import offline
-import k3d
+from scipy.io import savemat
+import numpy as np
+import glob
+import os
 # import plotly.io as pio
 # pio.renderers.default = 'vscode'
 
@@ -99,9 +102,11 @@ def PAD_Momentum(input_par, psi, grid, m):
 
     pad_value_magnitude /= pad_value_magnitude.max()
 
-    np.save("H2_M0_2_Mag", pad_value_magnitude)
-    np.save("H2_M0_2_Phase", pad_value_phase)
-    np.save("H2_M0_2_Total", pad_value_total)
+    savemat("H2_M0_2_Mag.mat", {"data": pad_value_magnitude })
+
+    # np.save("H2_M0_2_Mag", pad_value_magnitude)
+    # np.save("H2_M0_2_Phase", pad_value_phase)
+    # np.save("H2_M0_2_Total", pad_value_total)
 
 def Psi_Plotter(input_par, psi, grid):
     block_to_qn, qn_to_block = Mod.Index_Map(input_par)
@@ -174,8 +179,14 @@ def Plot_Wave_Function2():
     plot += plt_volume
     plot.display()
 
-
-
+def File_Convert():
+    
+    npzFiles = glob.glob("*.npy")
+    for f in npzFiles:
+        fm = os.path.splitext(f)[0]+'.mat'
+        d = np.load(f)
+        savemat(fm, d)
+        print('generated ', fm, 'from', f)
 
 if __name__=="__main__":
     file_location = "/mpdata/becker/yoge8051/Research/Data/Diatomic/Hydrogen/"
@@ -190,17 +201,7 @@ if __name__=="__main__":
 
     print(energy[(n, m)])
 
-    # plt.plot(grid, np.abs(psi[:len(grid)]), label="0")
-    # plt.plot(grid, np.abs(psi[len(grid):2*len(grid)]), label="1")
-    # plt.plot(grid, np.abs(psi[2*len(grid):3*len(grid)]), label="2")
-    # plt.plot(grid, np.abs(psi[3*len(grid):4*len(grid)]), label="3")
-    # plt.plot(grid, np.abs(psi[4*len(grid):5*len(grid)]), label="4")
-    # plt.xlim(0, 35)
-    # plt.legend()
-    # plt.show()
-    # exit()
-
+ 
     PAD_Momentum(input_par, psi, grid, m)
 
-    
-    # Plot_Wave_Function2()
+  

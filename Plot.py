@@ -6,6 +6,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+import matplotlib.colors as colors
 
 from numpy import sin, log, pi, angle, sqrt
 import numpy as np
@@ -38,23 +39,21 @@ def Wave_Function_Value(input_par, psi, grid, r, theta, phi, m):
     r = closest(grid, r)
     grid_idx = np.where(grid == r)[0][0]
 
-    l_max_bs = input_par["l_max_bs"]
+    l_max_bs = input_par["l_max_bs_for_double_center"]
     return_val = 0.0j
 
     for l in range(m, l_max_bs):
         psi_idx = grid.size*l + grid_idx
 
-       
         return_val += 1/r*psi[psi_idx]*sph_harm(m, l, phi, theta)
-        # print(1/r,psi[psi_idx],sph_harm(m, l, phi, theta),return_val)
-        # exit()
+    
     return return_val
 
 def PAD_Momentum(input_par, psi, grid, m):
 
-    x_axis = np.linspace(-2.5 , 2.5, 30)
-    y_axis = np.linspace(-2.5 , 2.5, 30)
-    z_axis = np.linspace(-2.5 , 2.5, 30)
+    x_axis = np.linspace(-10.5 , 10.5, 50)
+    y_axis = np.linspace(-10.5 , 10.5, 50)
+    z_axis = np.linspace(-10.5 , 10.5, 50)
 
     pad_value = np.zeros((z_axis.size,y_axis.size))
     pad_value_magnitude = np.zeros((z_axis.size,y_axis.size, x_axis.size))
@@ -62,6 +61,7 @@ def PAD_Momentum(input_par, psi, grid, m):
     pad_value_total = np.zeros((z_axis.size,y_axis.size, x_axis.size), dtype=complex)
 
     z_print = z_axis[0:-1:int(len(z_axis)/10)]
+
     for i, z in enumerate(z_axis):
 
         if z in z_print:
@@ -102,11 +102,62 @@ def PAD_Momentum(input_par, psi, grid, m):
 
     pad_value_magnitude /= pad_value_magnitude.max()
 
-    savemat("H2_M0_2_Mag.mat", {"data": pad_value_magnitude })
+    # savemat("H2_M0_3_Mag.mat", {"data": pad_value_magnitude })
 
-    # np.save("H2_M0_2_Mag", pad_value_magnitude)
-    # np.save("H2_M0_2_Phase", pad_value_phase)
-    # np.save("H2_M0_2_Total", pad_value_total)
+    np.save("H2_M0_5_Mag", pad_value_magnitude)
+    np.save("H2_M0_5_Phase", pad_value_phase)
+    np.save("H2_M0_5_Total", pad_value_total)
+
+def PAD_Momentum_Two(input_par, psi, grid, m):
+
+    axis_min = -3.5
+    axis_max = 3.5
+    x_axis = np.linspace(axis_min , axis_max, 700)
+    z_axis = np.linspace(axis_min , axis_max, 700)
+
+    y = 0
+    pad_mag = np.zeros((z_axis.size,x_axis.size))
+    pad_phase = np.zeros((z_axis.size,x_axis.size))
+  
+
+    
+    for i, z in enumerate(z_axis):
+
+        print(round(z,3))
+
+        for j, x in enumerate(x_axis):
+            pad_value_temp = 0.0j
+
+            r = np.sqrt(x*x + y*y + z*z)
+            if r == 0:
+                r = 0.01
+
+            phi = atan2(y, x)
+            if phi < 0:
+                phi = 2*pi + phi
+
+            theta = np.arccos(z/r)
+            
+            val = Wave_Function_Value(input_par, psi, grid, r, theta, phi, m)
+
+            pad_mag[j, i] = np.power(np.abs(val),2)
+            pad_phase[j, i] = cmath.phase(val)
+
+
+    pad_mag /= pad_mag.max()
+    pad_phase = np.sign(pad_phase)
+
+    pad = pad_mag*pad_phase
+
+    
+    pos = plt.imshow(pad, cmap='seismic', extent=[axis_min, axis_max, axis_min, axis_max],  \
+        norm=colors.SymLogNorm(linthresh=0.03, linscale=0.03, vmin=-1.0, vmax=1.0),)
+    # pos = plt.imshow(pad, cmap='seismic', extent=[axis_min, axis_max, axis_min, axis_max], vmin=-1, vmax=1)
+    plt.colorbar(pos)
+    # plt.grid()
+    plt.tight_layout()
+    plt.show()
+    plt.clf()
 
 def Psi_Plotter(input_par, psi, grid):
     block_to_qn, qn_to_block = Mod.Index_Map(input_par)
@@ -123,7 +174,7 @@ def Target_File_Reader_WO_Parity(input_par):
     file = h5py.File(file_location + input_par["Target_File"], 'r')
     energy = {}
     wave_function = {}
-    for m in range(input_par["m_max_bs"] + 1):
+    for m in range(input_par["m_max_bs_for_double_center"] + 1):
         n_quantum_number = 1
         for i in range(input_par["n_max"]):
             
@@ -161,7 +212,6 @@ def Plot_Wave_Function():
         ))
     offline.plot(fig)
 
-
 def Plot_Wave_Function2():
     
 
@@ -196,12 +246,22 @@ if __name__=="__main__":
     energy, bound_states = Target_File_Reader_WO_Parity(input_par)
 
     m = 0
-    n = 2
+    n = 5
     psi = bound_states[(n, m)]
 
     print(energy[(n, m)])
 
- 
+
+    plt.plot(grid, np.abs(psi[:len(grid)]), label="l=0")
+    plt.plot(grid, np.abs(psi[len(grid):2*len(grid)]), label="l=1")
+    plt.plot(grid, np.abs(psi[2*len(grid):3*len(grid)]), label="l=2")
+    plt.plot(grid, np.abs(psi[3*len(grid):4*len(grid)]), label="l=3")
+    plt.plot(grid, np.abs(psi[4*len(grid):5*len(grid)]), label="l=4")
+
+    plt.xlim(0, 30)
+    plt.legend()
+    plt.show()
+
     PAD_Momentum(input_par, psi, grid, m)
 
   

@@ -51,9 +51,9 @@ def Wave_Function_Value(input_par, psi, grid, r, theta, phi, m):
 
 def PAD_Momentum(input_par, psi, grid, m):
 
-    x_axis = np.linspace(-10.5 , 10.5, 50)
-    y_axis = np.linspace(-10.5 , 10.5, 50)
-    z_axis = np.linspace(-10.5 , 10.5, 50)
+    x_axis = np.linspace(-3.5 , 3.5, 50)
+    y_axis = np.linspace(-3.5 , 3.5, 50)
+    z_axis = np.linspace(-3.5 , 3.5, 50)
 
     pad_value = np.zeros((z_axis.size,y_axis.size))
     pad_value_magnitude = np.zeros((z_axis.size,y_axis.size, x_axis.size))
@@ -104,9 +104,9 @@ def PAD_Momentum(input_par, psi, grid, m):
 
     # savemat("H2_M0_3_Mag.mat", {"data": pad_value_magnitude })
 
-    np.save("H2_M0_5_Mag", pad_value_magnitude)
-    np.save("H2_M0_5_Phase", pad_value_phase)
-    np.save("H2_M0_5_Total", pad_value_total)
+    np.save("Data/OM_M1_12_Mag", pad_value_magnitude)
+    np.save("Data/OM_M1_12_Phase", pad_value_phase)
+    np.save("Data/OM_M1_12_Total", pad_value_total)
 
 def PAD_Momentum_Two(input_par, psi, grid, m):
 
@@ -239,28 +239,28 @@ def File_Convert():
         print('generated ', fm, 'from', f)
 
 if __name__=="__main__":
-    file_location = "/mpdata/becker/yoge8051/Research/Data/Diatomic/Hydrogen/"
+    file_location = "/mpdata/becker/yoge8051/Research/Data/Diatomic/Oxygen2/"
     input_par = Mod.Input_File_Reader(file_location + "input.json")
     grid = Mod.Grid(input_par["grid_spacing"], input_par["grid_size"])
     grid= grid.grid
     energy, bound_states = Target_File_Reader_WO_Parity(input_par)
 
-    m = 0
-    n = 5
+    m = 1
+    n = 12
     psi = bound_states[(n, m)]
 
     print(energy[(n, m)])
 
 
-    plt.plot(grid, np.abs(psi[:len(grid)]), label="l=0")
-    plt.plot(grid, np.abs(psi[len(grid):2*len(grid)]), label="l=1")
-    plt.plot(grid, np.abs(psi[2*len(grid):3*len(grid)]), label="l=2")
-    plt.plot(grid, np.abs(psi[3*len(grid):4*len(grid)]), label="l=3")
-    plt.plot(grid, np.abs(psi[4*len(grid):5*len(grid)]), label="l=4")
+    # plt.plot(grid, np.abs(psi[:len(grid)]), label="l=0")
+    # plt.plot(grid, np.abs(psi[len(grid):2*len(grid)]), label="l=1")
+    # plt.plot(grid, np.abs(psi[2*len(grid):3*len(grid)]), label="l=2")
+    # plt.plot(grid, np.abs(psi[3*len(grid):4*len(grid)]), label="l=3")
+    # plt.plot(grid, np.abs(psi[4*len(grid):5*len(grid)]), label="l=4")
 
-    plt.xlim(0, 30)
-    plt.legend()
-    plt.show()
+    # plt.xlim(0, 30)
+    # plt.legend()
+    # plt.show()
 
     PAD_Momentum(input_par, psi, grid, m)
 
